@@ -21,13 +21,11 @@ public class ObservableActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*addNumbers();
+        addNumbers();
         loopThroughArray();
         multipleObservablesUsecase();
-        multipleOddEven();
-        printNumbers();*/
-
-        iterateList();
+        multiplyOddEven();
+        printNumbers();
     }
 
     /**
@@ -35,12 +33,12 @@ public class ObservableActivity extends AppCompatActivity {
      */
     private void addNumbers() {
         Observable
-                .just(1, 2, 3)
-                .reduce((a, b) -> a + b)
-                .subscribe(
-                        result -> Log.v("", "addNumbers -> " + result),
-                        error -> error.printStackTrace()
-                );
+            .just(1, 2, 3)
+            .reduce((a, b) -> a + b)
+            .subscribe(
+                result -> Log.v("", "addNumbers -> " + result),
+                error -> error.printStackTrace()
+            );
     }
 
     /**
@@ -53,12 +51,12 @@ public class ObservableActivity extends AppCompatActivity {
         numbers.add(3);
 
         Observable
-                .fromIterable(numbers)
-                .reduce((a, b) -> a + b)
-                .subscribe(
-                        result -> Log.v("", "loopThroughArray -> " + result),
-                        error -> error.printStackTrace()
-                );
+            .fromIterable(numbers)
+            .reduce((a, b) -> a + b)
+            .subscribe(
+                result -> Log.v("", "loopThroughArray -> " + result),
+                error -> error.printStackTrace()
+            );
     }
 
     /**
@@ -74,18 +72,21 @@ public class ObservableActivity extends AppCompatActivity {
         Observable<Integer> num1 = Observable.just(0, 1, 2);
         Observable<Integer> num2 = Observable.just(2, 4, 6);
 
-        num2.flatMap(
-                i2 -> num1.filter(i -> i != 0)
-                        .map(i1 -> i2 / i1)
-        ).subscribe(
+        num2
+            .flatMap(
+                i2 -> num1
+                    .filter(i -> i != 0)
+                    .map(i1 -> i2 / i1)
+            )
+            .subscribe(
                 s -> Log.v("", "cartisianProduct -> " + s),
                 error -> error.printStackTrace()
-        );
+            );
     }
 
     /**
      * [1, 2, 3, 4, 5] - 3 odds, 2 evens
-     * Requirement: Find number of odds and evens and multiple odd count with odd numbers
+     * Requirement: Find number of odds and evens and multiply odd count with odd numbers
      * & even count with even numbers and print them.
      * Ex result:
      * 3   (1 * 3)
@@ -94,24 +95,20 @@ public class ObservableActivity extends AppCompatActivity {
      * 8   (4 * 2)
      * 15  (5 * 3)
      */
-    private void multipleOddEven() {
+    private void multiplyOddEven() {
         Observable<Integer> obs = Observable.just(1, 2, 3, 4, 5);
 
-        Observable<Integer> evenCount = obs.filter(integer -> integer % 2 == 0);
-        Observable<Integer> oddCount = obs.filter(integer -> integer % 2 != 0);
+        Observable<Long> evenCount = obs.filter(integer -> integer % 2 == 0).count().toObservable();
+        Observable<Long> oddCount = obs.filter(integer -> integer % 2 != 0).count().toObservable();
 
 
         obs.flatMap(
-                integer -> {
-                    if (integer % 2 == 0) {
-                        return evenCount.count().map(count -> count * integer).toObservable();
-                    } else {
-                        return oddCount.count().map(count -> count * integer).toObservable();
-                    }
-                }
+            integer -> integer % 2 == 0 ?
+                       evenCount.map(count -> count * integer) :
+                       oddCount.map(count -> count * integer)
         ).subscribe(
-                s -> Log.v("", "multipleOddEven -> " + s),
-                error -> error.printStackTrace()
+            s -> Log.v("", "multiplyOddEven -> " + s),
+            error -> error.printStackTrace()
         );
     }
 
@@ -123,85 +120,35 @@ public class ObservableActivity extends AppCompatActivity {
         for (int i = 0; i < 5; i++) {
             arrayIntegers.add(i);
         }
+        arrayIntegers.add(null);
 
         Observable
-                .fromIterable(arrayIntegers)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        new Observer<Integer>() {
-                            @Override
-                            public void onSubscribe(Disposable d) {
-
-                            }
-
-                            @Override
-                            public void onNext(Integer i) {
-                                Log.d("", "printNumbers -> " + i);
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                Log.d("", "printNumbers -> Completed");
-                            }
-                        }
-                );
-    }
-
-    public Observable<String> getRandomString() {
-        return Observable.just("your string here");
-    }
-
-    public void loadRandomString() {
-
-        Observable<String> observable = getRandomString();
-        observable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.newThread())
-                .subscribe();
-    }
-
-    /**
-     * calls onError() since items in the list are null
-     */
-    private void iterateList() {
-        List<String> urls = new ArrayList<>();
-        urls.add("htp://test.com");
-        urls.add("htp://test.com");
-        urls.add(null);
-        urls.add(null);
-        urls.add("htp://test.com");
-
-        Observable.fromIterable(urls)
-                .map(s -> s.contains("http"))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .toList() // this returned a null pointer
-                .subscribe(new SingleObserver<List<Boolean>>() {
+            .fromIterable(arrayIntegers)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                new Observer<Integer>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        Log.i("TesTag", "onSubscribe ");
-
+                        Log.d("", "printNumbers -> Subscribed");
                     }
 
                     @Override
-                    public void onSuccess(List<Boolean> booleans) {
-                        Log.i("TesTag", "booleans size " + booleans.size());
+                    public void onNext(Integer i) {
+                        Log.d("", "printNumbers -> " + i);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.i("TesTag", "onError " + e);
+                        Log.e("", "printNumbers -> error: " + e);
                     }
-                });
-    }
 
-    private void asyncToRx() {
-
+                    @Override
+                    public void onComplete() {
+                        Log.d("", "printNumbers -> Completed");
+                    }
+                }
+            );
     }
 
 }

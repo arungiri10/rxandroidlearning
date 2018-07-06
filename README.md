@@ -1,4 +1,4 @@
-# rxandroidlearning
+# Learn Rxandroid
 Learning RxJava and RxAndroid with simple examples.
 
 To start with add the flowing to your gradle,

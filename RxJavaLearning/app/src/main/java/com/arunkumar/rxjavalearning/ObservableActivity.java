@@ -9,22 +9,25 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity {
+public class ObservableActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        addNumbers();
+        /*addNumbers();
         loopThroughArray();
         multipleObservablesUsecase();
         multipleOddEven();
-        printNumbers();
+        printNumbers();*/
+
+        iterateList();
     }
 
     /**
@@ -70,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
     private void multipleObservablesUsecase() {
         Observable<Integer> num1 = Observable.just(0, 1, 2);
         Observable<Integer> num2 = Observable.just(2, 4, 6);
-        Observable<String> letters = Observable.just("a", "b");
 
         num2.flatMap(
                 i2 -> num1.filter(i -> i != 0)
@@ -149,4 +151,57 @@ public class MainActivity extends AppCompatActivity {
                         }
                 );
     }
+
+    public Observable<String> getRandomString() {
+        return Observable.just("your string here");
+    }
+
+    public void loadRandomString() {
+
+        Observable<String> observable = getRandomString();
+        observable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.newThread())
+                .subscribe();
+    }
+
+    /**
+     * calls onError() since items in the list are null
+     */
+    private void iterateList() {
+        List<String> urls = new ArrayList<>();
+        urls.add("htp://test.com");
+        urls.add("htp://test.com");
+        urls.add(null);
+        urls.add(null);
+        urls.add("htp://test.com");
+
+        Observable.fromIterable(urls)
+                .map(s -> s.contains("http"))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .toList() // this returned a null pointer
+                .subscribe(new SingleObserver<List<Boolean>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.i("TesTag", "onSubscribe ");
+
+                    }
+
+                    @Override
+                    public void onSuccess(List<Boolean> booleans) {
+                        Log.i("TesTag", "booleans size " + booleans.size());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("TesTag", "onError " + e);
+                    }
+                });
+    }
+
+    private void asyncToRx() {
+
+    }
+
 }

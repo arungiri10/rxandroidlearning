@@ -9,7 +9,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.arunkumar.rxjavalearning"
-        minSdkVersion 25
+        minSdkVersion 24
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -22,12 +22,22 @@ android {
         }
     }
     dependencies {
-        //RxJava
+        //RxJava2
         compile 'io.reactivex.rxjava2:rxjava:2.0.6'
 
         //RxAndroid
         compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
         //allows usage of Android thread pools (AndroidScheduler.mainThread())
+
+        //Retrofit2
+        compile 'com.squareup.retrofit2:retrofit:2.3.0'
+
+        //Retrofit 2 adapter to work with RxJava 2
+        compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+
+        //Support for GSON
+        compile 'com.google.code.gson:gson:2.7'
+        compile 'com.squareup.retrofit2:converter-gson:2.3.0'
 
         //View Binding
         annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
